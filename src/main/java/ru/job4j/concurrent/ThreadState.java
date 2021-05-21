@@ -17,11 +17,7 @@ public class ThreadState {
 
         int whileIsNotEmpty = 0;
 
-        while (first.getState() != Thread.State.TERMINATED) {
-            whileIsNotEmpty++;
-        }
-
-        while (second.getState() != Thread.State.TERMINATED) {
+        while (first.getState() != Thread.State.TERMINATED || second.getState() != Thread.State.TERMINATED) {
             whileIsNotEmpty++;
         }
 
