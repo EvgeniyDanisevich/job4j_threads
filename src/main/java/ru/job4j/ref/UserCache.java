@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @ThreadSafe
 public class UserCache {
@@ -21,8 +22,8 @@ public class UserCache {
     }
 
     public List<User> findAll() {
-        ConcurrentHashMap<Integer, User> copy = new ConcurrentHashMap<>();
-        users.keySet().forEach(integer -> copy.put(integer, User.of(users.get(integer).getName())));
-        return new ArrayList<>(copy.values());
+        return users.values().stream()
+                .map(user -> User.of(user.getName()))
+                .collect(Collectors.toList());
     }
 }
