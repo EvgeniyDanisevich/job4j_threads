@@ -94,6 +94,6 @@ public class UserStorageTest {
         second.start();
         first.join();
         second.join();
-        assertEquals(List.of(new User(1, 300), new User(2,0)), storage.getUsers());
+        assertEquals(List.of(new User(1, 300), new User(2, 0)), storage.getUsers());
     }
 }
