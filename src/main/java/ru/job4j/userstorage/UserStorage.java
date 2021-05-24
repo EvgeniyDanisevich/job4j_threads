@@ -3,62 +3,41 @@ package ru.job4j.userstorage;
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @ThreadSafe
 public class UserStorage {
     @GuardedBy("this")
-    private final List<User> users = Collections.synchronizedList(new ArrayList<>());
-
-    private synchronized User containUser(User user) {
-        for (User u : users) {
-            if (u.getId() == user.getId()) {
-                return u;
-            }
-        }
-        return null;
-    }
+    private final Map<Integer, User> users = new HashMap<>();
 
     public synchronized boolean add(User user) {
-        if (containUser(user) == null) {
-            users.add(user);
+        if (!users.containsKey(user.getId())) {
+            users.put(user.getId(), user);
             return true;
         }
         return false;
     }
 
     public synchronized boolean update(User user) {
-        User u = containUser(user);
-        if (u != null) {
-            u.setAmount(user.getAmount());
+        if (users.containsKey(user.getId())) {
+            users.put(user.getId(), user);
             return true;
         }
         return false;
     }
 
     public synchronized boolean delete(User user) {
-        User u = containUser(user);
-        if (containUser(user) != null) {
-            return users.remove(u);
-
-        }
-        return false;
+        return users.remove(user.getId(), user);
     }
 
     public synchronized void transfer(int fromId, int toId, int amount) {
-        User first = null;
-        User second = null;
-        for (User u : users) {
-            if (u.getId() == fromId) {
-                first = u;
-            }
-            if (u.getId() == toId) {
-                second = u;
-            }
-            if (first != null && second != null) {
+        User first;
+        User second;
+        if (users.containsKey(fromId) && users.containsKey(toId)) {
+            first = users.get(fromId);
+            second = users.get(toId);
+            if (first.getAmount() >= amount) {
                 first.setAmount(first.getAmount() - amount);
                 second.setAmount(second.getAmount() + amount);
             }
@@ -66,7 +45,7 @@ public class UserStorage {
     }
 
     public synchronized List<User> getUsers() {
-        return users.stream()
+        return users.values().stream()
                 .map(user -> new User(user.getId(), user.getAmount()))
                 .collect(Collectors.toList());
     }
