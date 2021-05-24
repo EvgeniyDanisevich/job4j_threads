@@ -8,27 +8,39 @@ import java.util.Queue;
 
 @ThreadSafe
 public class SimpleBlockingQueue<T> {
+    private final int size;
 
     @GuardedBy("this")
     private final Queue<T> queue = new LinkedList<>();
 
-    public void offer(T value) {
-        synchronized (this) {
-            queue.add(value);
-            this.notifyAll();
-        }
+    public SimpleBlockingQueue(int size) {
+        this.size = size;
     }
 
-    public synchronized T poll() {
-        synchronized (this) {
-            while (queue.isEmpty()) {
-                try {
-                    this.wait();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+    public synchronized void offer(T value) throws InterruptedException {
+        while (size <= queue.size()) {
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw e;
             }
         }
-        return queue.poll();
+        queue.add(value);
+        this.notifyAll();
+    }
+
+    public synchronized T poll() throws InterruptedException {
+        while (queue.isEmpty()) {
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw e;
+            }
+        }
+        T t = queue.poll();
+        this.notifyAll();
+        return t;
     }
 }

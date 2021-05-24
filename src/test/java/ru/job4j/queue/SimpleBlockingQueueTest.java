@@ -11,21 +11,29 @@ import static org.junit.Assert.assertEquals;
 public class SimpleBlockingQueueTest {
     @Test
     public void twoThreads() throws InterruptedException {
-        SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>();
+        SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>(5);
         Thread producer = new Thread(
                 () -> {
-                    queue.offer(1);
-                    queue.offer(2);
-                    queue.offer(3);
-                    queue.offer(4);
-                    queue.offer(5);
+                    try {
+                        queue.offer(1);
+                        queue.offer(2);
+                        queue.offer(3);
+                        queue.offer(4);
+                        queue.offer(5);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
         );
         Thread consumer = new Thread(
                 () -> {
-                    queue.poll();
-                    queue.poll();
-                    queue.poll();
+                    try {
+                        queue.poll();
+                        queue.poll();
+                        queue.poll();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
         );
         producer.start();
