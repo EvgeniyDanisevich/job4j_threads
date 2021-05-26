@@ -36,18 +36,16 @@ public class IndexSearch<T> extends RecursiveTask<Integer> {
         rightSearch.fork();
         Integer left = leftSearch.join();
         Integer right = rightSearch.join();
-        return left == null ? right : left;
+        return left == -1 ? right : left;
     }
 
     private Integer linearSearch(int from, int to) {
         for (int i = from; i <= to; i++) {
-            if (array[i] != null && array[i].equals(object)) {
-                return i;
-            } else if (array[i] == null && array[i] == object) {
+            if (array[i].equals(object)) {
                 return i;
             }
         }
-        return null;
+        return -1;
     }
 
     public Integer find(T object) {
